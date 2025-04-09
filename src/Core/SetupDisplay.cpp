@@ -11,80 +11,62 @@ SetupDisplay::~SetupDisplay() {}
 
 void SetupDisplay::begin() {
 
-    // In this method, we initialized the settings
-    // This schould be performed every time, otherwise the microcontroller does not have the correct settings
+    // initialize the library by associating any needed LCD interface pin
+    // with the arduino pin number it is connected to
+    lcd_ = new LiquidCrystal(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
-    /*
-    // temporary used variables for restoring
-    
-    int eepromInt;
-    float eepromFloat;
-    
-    // restore Joystick
-    
-    eeprom_->get(STORE_ADDR_RX_MAX, eepromInt);
-    joyst_->rotationX_.setMax(MAX_AXIS, eepromInt);
-    
-    eeprom_->get(STORE_ADDR_RX_MIN, eepromInt);
-    joyst_->rotationX_.setMin(MIN_AXIS, eepromInt);
-    
-    
-    eeprom_->get(STORE_ADDR_RX_CENTER, eepromInt);
-    joyst_->setRxCenter(eepromInt);
-    
-    
-    // restore Ry-Axis
-    
-    eeprom_->get(STORE_ADDR_RY_MAX, eepromInt);
-    joyst_->rotationY_.setMax(MAX_AXIS, eepromInt);
-    
-    eeprom_->get(STORE_ADDR_RY_MIN, eepromInt);
-    joyst_->rotationY_.setMin(MIN_AXIS, eepromInt);
-    
-    
-    eeprom_->get(STORE_ADDR_RY_CENTER, eepromInt);
-    joyst_->setRyCenter(eepromInt);
-    
-    // restore Throttle-Axis
-    
-    eeprom_->get(STORE_ADDR_THROTTLE_MAX, eepromInt);
-    pedal_->throttle_.setMax(MAX_AXIS, eepromInt);
-    
-    eeprom_->get(STORE_ADDR_THROTTLE_MIN, eepromInt);
-    pedal_->throttle_.setMin(MIN_AXIS, eepromInt);
-    
+    // set up the LCD's number of columns and rows:
+    lcd_->begin(16, 2);
+    // Print a message to the LCD.
+    lcd_->print("hello, world!");
 
-    // restore Brake-Axis
-    
-    eeprom_->get(STORE_ADDR_BRAKE_MAX, eepromInt);
-    pedal_->brake_.setMax(MAX_AXIS, eepromInt);
-    
-    eeprom_->get(STORE_ADDR_BRAKE_MIN, eepromInt);
-    pedal_->brake_.setMin(MIN_AXIS, eepromInt);
-    
-    
-    // restor Steering
-    
-    eeprom_->get(STORE_ADDR_FACTOR, eepromFloat);
-    encoder_->setFactor(eepromFloat);
-    
-    */
-    
-    // lcd setup
-    
-    //lcd_ = new LiquidCrystal_I2C(LCD_ADDR, LCD_CHARS, LCD_LINES);
-    
-    //lcd_->init();
-    //lcd_->backlight();
+    pinMode(LCD_BACKLIGHT, OUTPUT);
+    digitalWrite(LCD_BACKLIGHT, HIGH);
 }
 
+void SetupDisplay::clearLine(uint8_t line) {
+
+    lcd_->setCursor(0,line);
+    lcd_->print(TXT_CLEAR);
+}
+
+
+void SetupDisplay::printLine(uint8_t line, String txt) {
+
+    lcd_->setCursor(0, line);
+    String data = txt.substring(0, LCD_CHARS); // truncate to 16 characters if longer
+    while (data.length() < LCD_CHARS) { // pad with spaces if shorter
+        data += " ";
+    }
+    lcd_->print(data);
+}
 
 void SetupDisplay::dark() {
-    
-    //lcd_->noBacklight();
+
+    digitalWrite(LCD_BACKLIGHT, LOW);
 }
 
+void SetupDisplay::setPage(uint8_t first_line, int second_line) {
 
+    page_ = first_line;
+    value_ = second_line;
+}
+
+void SetupDisplay::run() {
+
+    printLine(0, "Page: " + String(page_));
+    printLine(1, "Value: " + String(value_));
+
+    switch (page_) {
+
+    case 255:
+        dark();
+        break;
+    
+    default:
+        break;
+    }
+}
 
 
 

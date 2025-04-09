@@ -3,7 +3,8 @@
 #define SETUP_DISPLAY_HPP
 
 #include "ProjectConfig.hpp"
-#include <LiquidCrystal_I2C.h>
+#include "Arduino.h"
+#include <LiquidCrystal.h>
 #include <avr/delay.h>
 #include "TextBoxes.h"
 
@@ -16,11 +17,13 @@ class SetupDisplay {
         void begin();
         void run();
         void dark();
+        void setPage(uint8_t first_line, int second_line);
 
     private:
-        LiquidCrystal_I2C *lcd_;
+        LiquidCrystal *lcd_;
 
         uint8_t page_;
+        int value_;
 
         void clearLine(uint8_t line);
         void printLine(uint8_t line, String txt);

@@ -6,6 +6,7 @@
 // libs
 
 #include <Arduino.h>
+#include <Wire.h>
 
 // include
 #include "ProjectConfig.hpp"
@@ -20,6 +21,16 @@
 SetupDisplay display;
 
 
+// variables
+
+unsigned int numberOfCycle  {0}; // count the cycles
+
+
+// forward declaration of public functions
+
+void loopFast();
+void loopNormal();
+void loopSlow();
 void receiveEvent(int bytes);
 
 
@@ -40,6 +51,7 @@ void setup() {
     display.begin();
 }
 
+
 /**
  * @brief Arduino loop function.
  * 
@@ -47,6 +59,37 @@ void setup() {
  */
 void loop() {
 
+    numberOfCycle++;
+    
+    if((numberOfCycle % TIME_FAST) == 0) {
+        
+        // here are task which has priority
+        
+        loopFast();
+    }
+    
+    if((numberOfCycle % TIME_NORMAL) == 0) {
+        
+        // here are task which has no priority
+        
+        loopNormal();
+    }
+    
+    if((numberOfCycle % TIME_SLOW) == 0) {
+        
+        // here are tasks which slow down the code
+        
+        loopSlow();
+    }
+}
+
+void loopFast() {}
+
+void loopNormal() {}
+
+void loopSlow() {
+    
+    display.run();
 }
 
 void receiveEvent(int bytes) {
@@ -72,5 +115,11 @@ void receiveEvent(int bytes) {
         Serial.print(", B = ");
         Serial.println(B);
         #endif
+
+        display.setPage(A, B);
+    }
+    else {
+
+        display.setPage(0,0);
     }
 }
